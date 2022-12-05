@@ -1,0 +1,170 @@
+//exercice 1 creation des tables
+
+create table SEGMENT(
+    N_SEGMENT varchar(10) PRIMARY KEY,
+    NOM_SEGMENT varchar(20));
+    
+create table SALLE(
+    n_salle varchar(7) PRIMARY KEY,
+    nom_salle varchar(20),
+    nb_poste INTEGER,
+    n_segment varchar(10)REFERENCES segment(n_segment)); 
+    
+create table poste(
+    n_poste varchar(7),
+    nom_poste varchar(20),
+    n_segment varchar(10),
+    ad varchar(2),
+    type_poste varchar(20),
+    n_salle varchar(7));
+    
+create table logiciel(
+    n_logiciel varchar(7)PRIMARY KEY,
+    nom_logiciel varchar(20),
+    date_achat date,
+    version varchar(7),
+    type_logiciel varchar(20));
+    
+create table installer(
+    n_poste varchar(7)REFERENCES poste(n_poste),
+    n_logiciel varchar(7) REFERENCES logiciel(n_logiciel),
+    date_inst date,
+    PRIMARY KEY(n_poste,n_logiciel));
+ 
+    
+
+//exercice 2 creation des données
+
+//SEGMENT
+
+insert into segment (n_segment,nom_segment) values ('130.120.80','segment 80'),('130.120.81','segment 81'),('130.120.82','segment 82');
+
+
+//SALLE
+
+insert into salle (n_salle,nom_salle,nb_poste,n_segment) values ('s01','salle 1',3,'130.120.80'),
+                                                                ('s02','salle 2',2,'130.120.80'),
+                                                                ('s03','salle 3',2,'130.120.80'),
+                                                                ('s11','salle 11',2,'130.120.81'),
+                                                                ('s12','salle 12',1,'130.120.81'),
+                                                                ('s21','salle 21',2,'130.120.82');
+
+
+//POSTE 
+
+insert into poste (n_poste,nom_poste,n_segment,ad,type_poste,n_salle) values ('p1','poste 1','130.120.80','01','TX','s01'),
+                                                                        ('p2','poste 2','130.120.80','02','UNIX','s01'),
+                                                                        ('p3','poste 3','130.120.80','03','TX','s01'),
+                                                                        ('p4','poste 4','130.120.80','04','PCWS','s02'),
+                                                                        ('p5','poste 5','130.120.80','05','PCWS','s02'),
+                                                                        ('p6','poste 6','130.120.80','06','UNIX','s03'),
+                                                                        ('p7','poste 7','130.120.80','07','TX','s03'),
+                                                                        ('p8','poste 8','130.120.81','01','UNIX','s11'),
+                                                                        ('p9','poste 9','130.120.81','02','TX','s11'),
+                                                                        ('p10','poste 10','130.120.81','03','UNIX','s12'),
+                                                                        ('p11','poste 11','130.120.82','01','PCXP','s21'),
+                                                                        ('p12','poste 12','130.120.82','02','PCXP','s21');
+                                                                
+
+//LOGICIEL 
+
+insert into logiciel (n_logiciel,nom_logiciel,date_achat,version,type_logiciel) values ('log1','oracle 9i','13/05/2021','9.2','UNIX'),
+                                                                                        ('log2','oracle 10g','15/09/2020','10.1','UNIX'),
+                                                                                        ('log3','sql serveur','12/04/2022','2020se','PCXP'),
+                                                                                        ('log4','4d','03/06/2020','2019.4','PCXP'),
+                                                                                        ('log5','windev','12/11/2021','10','PCWS'),
+                                                                                        ('log6','sql*net','13/05/2021','2.5','UNIX'),
+                                                                                        ('log7','I.I.S','12/04/2020','6.0','PCXP'),
+                                                                                        ('log8','autocard','21/03/2022','au2019','PCWS');
+                                                                
+
+//INSTALLER
+
+insert into installer (n_poste,n_logiciel,date_inst) values ('p2','log1','15/05/2021'),
+                                                            ('p2','log2','17/09/2020'),
+                                                            ('p4','log5','30/05/2022'),
+                                                            ('p6','log6','20/05/2021'),
+                                                            ('p6','log1','20/05/2021'),
+                                                            ('p8','log2','19/05/2021'),
+                                                            ('p8','log6','20/05/2021'),
+                                                            ('p11','log3','20/04/2022'),
+                                                            ('p12','log4','20/06/2020'),
+                                                            ('p11','log7','20/04/2022');
+                                                                
+    
+//exercice 3 , les requetes simples
+
+//lister donnée table SEGMENT
+select n_segment,nom_segment from segment;
+
+//lister postes dont le type est UNIX
+select nom_poste from poste
+where type_poste = 'UNIX';
+
+//lister les logiciel dont la date d'achat est antérieure au 31/12/2021
+select nom_logiciel from logiciel
+where date_achat <= '31/12/2021';
+
+//lister tous les logiciel dont le type est PCWS
+select nom_logiciel from logiciel
+where type_logiciel = 'PCWS';
+
+//lister les postes dont le type de segment est 130.120.80
+select nom_poste from poste
+where n_segment = '130.120.80';
+
+//lister les postes contenus dans les salles s01 et s03
+select nom_poste from poste
+where n_salle = 's01' or n_salle = 's03';
+
+
+//exercice 4 , ajout d'une nouvelle table
+
+create table Type(
+    type_lp varchar(7)PRIMARY KEY,
+    nom_type varchar(30));
+
+//ajout des valeurs
+insert into type(type_lp,nom_type) values ('TX','Terminal x-window'),
+                                            ('UNIX','Systeme Unix'),
+                                            ('PCXP','PC windows XP'),
+                                            ('PCWS','PC windows server'),
+                                            ('NC','Network computer');
+
+//modification des tables poste et logiciel 
+alter table poste
+add foreign key(type_poste)
+references type (type_lp);
+
+alter table logiciel
+add foreign key(type_logiciel)
+references type (type_lp);
+
+//exercice 5 , requete multi tables
+
+//Lister tous les types de postes n’existant pas dans le parc informatique
+SELECT nom_type FROM type
+WHERE NOT EXISTS (
+    SELECT type_poste 
+    FROM poste
+    WHERE  type_lp = type_poste
+);
+
+//Lister les types existants à la fois comme poste et comme logiciel
+SELECT nom_type FROM type
+WHERE EXISTS (
+    SELECT type_poste 
+    FROM poste, logiciel
+    WHERE  type_lp = type_poste and type_lp = type_logiciel
+);
+
+//Lister les types qui existent en tant que poste mais pas en tant que logiciel
+SELECT DISTINCT nom_type FROM type
+  WHERE EXISTS (
+    SELECT type_lp FROM poste WHERE EXISTS (
+      SELECT type_lp FROM logiciel
+       WHERE type_lp = type_poste
+       AND type_poste = type_logiciel));
+
+//Lister les ip des postes qui contiennent le logiciel « Log6 »   n_segment + ad
+
